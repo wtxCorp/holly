@@ -1,0 +1,302 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador de Emociones</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .questions {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .questions.active {
+            display: block;
+        }
+
+        .characteristics {
+            display: none;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .characteristics.active {
+            display: block;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Evaluador de Emociones</h1>
+        <form id="emotionForm">
+            <div class="form-group">
+                <label for="emotion">Selecciona la emoción dominante:</label>
+                <select id="emotion" required>
+                    <option value="">Seleccionar emoción</option>
+                    <option value="ira">Ira</option>
+                    <option value="odio">Odio</option>
+                    <option value="tristeza">Tristeza</option>
+                    <option value="distraccion">Distracción</option>
+                    <option value="miedo">Miedo</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Nivel de intensidad:</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="intensity" value="bajo" required>
+                        Bajo
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="intensity" value="medio">
+                        Medio
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="intensity" value="alto">
+                        Alto
+                    </label>
+                </div>
+            </div>
+
+            <div id="questionContainer" class="questions">
+                <!-- Las preguntas se generarán dinámicamente -->
+            </div>
+
+            <div class="form-group">
+                <label for="description">Describe la fuente de tu emoción:</label>
+                <textarea id="description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>¿Cuál es la causa de tu emoción?</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="source" value="persona" required>
+                        Persona
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="source" value="evento">
+                        Evento
+                    </label>
+                </div>
+            </div>
+
+            <div id="characteristics" class="characteristics"></div>
+
+            <button type="submit">Guardar Evaluación</button>
+        </form>
+    </div>
+
+    <script>
+        const emotionData = {
+            ira: {
+                questions: [
+                    "¿Con qué frecuencia sientes que pierdes el control?",
+                    "¿Experimentas tensión física cuando te enojas?",
+                    "¿Cuánto tiempo te toma calmarte después de un episodio de ira?"
+                ],
+                characteristics: {
+                    bajo: "Molestia leve, irritabilidad pasajera",
+                    medio: "Frustración notable, tensión muscular",
+                    alto: "Explosiones de ira, agresividad verbal o física"
+                }
+            },
+            odio: {
+                questions: [
+                    "¿Con qué frecuencia piensas en la persona/situación que odias?",
+                    "¿Sientes que este sentimiento afecta tus relaciones con otros?",
+                    "¿Has notado cambios en tu comportamiento debido a este sentimiento?"
+                ],
+                characteristics: {
+                    bajo: "Disgusto persistente, evitación",
+                    medio: "Resentimiento fuerte, pensamientos negativos recurrentes",
+                    alto: "Aversión intensa, deseos de venganza"
+                }
+            },
+            tristeza: {
+                questions: [
+                    "¿Has notado cambios en tus patrones de sueño o alimentación?",
+                    "¿Te cuesta encontrar alegría en actividades que antes disfrutabas?",
+                    "¿Con qué frecuencia te sientes abrumado por la tristeza?"
+                ],
+                characteristics: {
+                    bajo: "Melancolía suave, ánimo bajo",
+                    medio: "Pesar significativo, llanto ocasional",
+                    alto: "Dolor emocional profundo, desesperanza"
+                }
+            },
+            distraccion: {
+                questions: [
+                    "¿Te cuesta mantener la atención en tareas importantes?",
+                    "¿Olvidas frecuentemente cosas importantes o citas?",
+                    "¿Tienes dificultad para completar tareas sin interrupciones?"
+                ],
+                characteristics: {
+                    bajo: "Dificultad ocasional para concentrarse",
+                    medio: "Problemas frecuentes de atención",
+                    alto: "Incapacidad para mantener el foco, desorganización severa"
+                }
+            },
+            miedo: {
+                questions: [
+                    "¿Experimentas síntomas físicos cuando sientes miedo?",
+                    "¿Evitas situaciones específicas debido al miedo?",
+                    "¿El miedo interfiere con tus actividades diarias?"
+                ],
+                characteristics: {
+                    bajo: "Inquietud, preocupación leve",
+                    medio: "Ansiedad notable, respuestas de evitación",
+                    alto: "Pánico, respuestas físicas intensas"
+                }
+            }
+        };
+
+        const emotionSelect = document.getElementById('emotion');
+        const questionContainer = document.getElementById('questionContainer');
+        const characteristicsDiv = document.getElementById('characteristics');
+        const form = document.getElementById('emotionForm');
+
+        function generateQuestions(emotion) {
+            if (!emotion) {
+                questionContainer.classList.remove('active');
+                return;
+            }
+
+            const questions = emotionData[emotion].questions;
+            questionContainer.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'form-group';
+                questionDiv.innerHTML = `
+                    <label for="question${index}">${question}</label>
+                    <textarea id="question${index}" required></textarea>
+                `;
+                questionContainer.appendChild(questionDiv);
+            });
+
+            questionContainer.classList.add('active');
+        }
+
+        function updateCharacteristics() {
+            const emotion = emotionSelect.value;
+            const intensity = document.querySelector('input[name="intensity"]:checked')?.value;
+
+            if (emotion && intensity && emotionData[emotion]) {
+                const characteristic = emotionData[emotion].characteristics[intensity];
+                characteristicsDiv.innerHTML = `
+                    <h3>Características de tu emoción:</h3>
+                    <p>${characteristic}</p>
+                `;
+                characteristicsDiv.classList.add('active');
+            } else {
+                characteristicsDiv.classList.remove('active');
+            }
+        }
+
+        emotionSelect.addEventListener('change', (e) => {
+            generateQuestions(e.target.value);
+            updateCharacteristics();
+        });
+
+        document.querySelectorAll('input[name="intensity"]').forEach(radio => {
+            radio.addEventListener('change', updateCharacteristics);
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Aquí puedes agregar el código para procesar el formulario
+            // Por ejemplo, podrías recopilar todos los datos y enviarlos a un servidor
+            
+            alert('Evaluación guardada exitosamente');
+            form.reset();
+            questionContainer.classList.remove('active');
+            characteristicsDiv.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
